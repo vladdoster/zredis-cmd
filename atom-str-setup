@@ -4,6 +4,7 @@
 setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
+local REPLY
 
 zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n p: P: s: -sink: i -init || \
           { print -r -- "Improper options given, see help (-h/--help)"; return 1; }
@@ -33,7 +34,7 @@ typeset -g zredis_queue_${name}_flagidx="flag_idx_${OPT_SINK-:$name}"
 local -a password
 password=( ${${=OPT_PASSWORD:+-p $OPT_PASSWORD}:-${=OPT_PASSWORD_FILE:+-P $OPT_PASSWORD_FILE}} )
 
-@atstr_untie_if_tied "$name" "flag_idx_${name}"
+@atom-untie-if-tied "$name" "flag_idx_${name}"
 ztie -d db/redis -f "${address}/${OPT_SINK-:$name}" "${password[@]}" -SL string "$name"
 ztie -d db/redis -f "${address}/flag_idx_${OPT_SINK-:$name}" "${password[@]}" -SL string flag_idx_${name}
 
@@ -57,8 +58,9 @@ else
     local output="" nam filename
     for nam in "$name" "flag_idx_$name"; do
         filename=$( mktemp -t ZshAtomicString.XXX )
-        { val=${(P)nam}; echo "val:$val";} >"$filename" 2>&1
-        IFS=$'\n' read nam < "$filename"; output+="$nam"
+        { val=${(P)nam}; } >"$filename" 2>&1
+        @atom-read-all <$filename
+        output+="$REPLY"
         command rm -f "$filename"
     done
 
