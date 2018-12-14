@@ -37,7 +37,9 @@ var_value2="${(P)par2}"
 if [[ "${(P)var_value2}" != "0" ]]; then
     REPLY="${(P)var_value1}"
     : ${(P)var_value2::=0}
+    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully read new data from the 1-element queue \`$name'"
     return 0
 else
+    [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is empty"
     return 1
 fi
