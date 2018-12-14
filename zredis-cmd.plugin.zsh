@@ -18,5 +18,5 @@ fi
 
 autoload @atom-untie-if-tied @atom-read-all @atom-one-element-setup @atom-setup-facade \
             atom-oe-get atom-oe-push \
-            atom-str-setup atom-list-setup atom-hash-setup
+            atom-str-setup atom-set-setup atom-list-setup atom-hash-setup atom-zset-setup
 
