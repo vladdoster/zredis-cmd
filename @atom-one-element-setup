@@ -19,7 +19,7 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n p: P: \
 (( ${+opthash[-P]} ))                           && local OPT_PASSWORD_FILE="${opthash[-P]}"
 (( ${+opthash[-s]} + ${+opthash[--sink]} ))     && local OPT_SINK="${opthash[-s]}${opthash[--sink]}"
 (( ${+opthash[-i]} + ${+opthash[--init]} ))     && local OPT_INIT="-i"
-(( ${+opthash[-t]} + ${+opthash[--type]} ))     && local OPT_TYPE="${opthash[-t]}${opthash[--type]}"
+(( ${+opthash[-t]} + ${+opthash[--type]} ))     && local OPT_TYPE="${(L)opthash[-t]}${(L)opthash[--type]}"
 
 local name="$1" address="$2"
 
