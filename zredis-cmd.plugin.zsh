@@ -17,6 +17,7 @@ if [[ ( ${+LOADED_PLUGINS} = 0 || ${LOADED_PLUGINS[-1]} != */zredis ) && -z "${f
 fi
 
 autoload @atom-untie-if-tied @atom-read-all @atom-one-element-setup @atom-setup-facade \
+            atom-oe-get atom-oe-push \
             atom-str-setup atom-str-get atom-str-push \
             atom-list-setup
 

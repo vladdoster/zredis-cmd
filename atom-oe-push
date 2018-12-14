@@ -11,6 +11,7 @@ setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
 typeset -g REPLY=""
+typeset -ga reply
 # The variable/data household, an operational-"database" hash
 typeset -gA ZREDIS_CMD
 
@@ -22,8 +23,27 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
 (( ${+opthash[-q]} + ${+opthash[--quiet]} ))    && local OPT_QUIET="-q"
 (( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
 
-local name="$1" val="$2" key1 value1_var_name key2 flag2_var_name
+local name="$1" tpe key1 value1_var_name key2 flag2_var_name
 [[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed as first argument, see -h/--help"; return 1; }
+
+# Read to have the value handy
+tpe="${ZREDIS_CMD[queue_${name}_val_type]}"
+
+# Decide on $val form (type)
+if [[ $tpe = (#i)(list|set) && "$2" = "[" ]]; then
+    local -a val
+    val=( "${@[3,-1]}" )
+    [[ "${val[-1]}" = "]" ]] && val[-1]=()
+elif [[ $tpe = (#i)(list|set) ]]; then
+    local -a val
+    val=( "${(@P)2}" )
+elif [[ "$tpe" = (#i)string ]]; then
+    local val
+    val="$2"
+else
+    print -rn -- "Unrecognized type of the queue: $tpe"
+    return 2
+fi
 
 # Clear cache of the value-holder
 key1="queue_${name}_sink"
@@ -44,9 +64,16 @@ ztclear "$flag2_var_name"
 
 # value1 - the value, flag2 - flag
 if [[ "${(P)flag2_var_name:-0}" = "0" ]]; then
-    : ${(P)value1_var_name::=$val}
+    if [[ "$tpe" = (#i)string ]]; then
+        : ${(P)value1_var_name::=$val}
+        print "Storing <$val>"
+    elif [[ "$tpe" = (#i)(list|set) ]]; then
+        print "Storing >${(j:,:)val}<"
+        : ${(PA)value1_var_name::=${val[@]}}
+    fi
     : ${(P)flag2_var_name::=1}
-    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'" return 0
+    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
+    return 0
 else
     [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is full, didn't push new data"
     return 1
