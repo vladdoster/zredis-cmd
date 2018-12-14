@@ -40,13 +40,15 @@ if [[ "$tpe" = (#i)(list|set|hash|zset) && "$2" = "[" ]]; then
     fi
 elif [[ "$tpe" = (#i)(list|set) ]]; then
     local -a val
+    [[ -z "$2" ]] && { print "No value to send (\"push\") given, aborting..."; return 3; }
+    [[ 1 -ne "${(P)+2}" ]] && { print "The data-to-send variable \`$2' doesn't exist, aborting..."; return 4; }
     val=( "${(@P)2}" )
 elif [[ "$tpe" = (#i)string ]]; then
     local val
     val="$2"
 else
     print -rn -- "Unrecognized type of the queue: $tpe"
-    return 3
+    return 5
 fi
 
 # Clear cache of the value-holder
