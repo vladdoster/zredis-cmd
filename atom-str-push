@@ -39,7 +39,7 @@ var_value2="${(P)par2}"
 # 1-element queue.
 # par3="zredis_queue_${name}_val_flagidx"
 
-if [[ "${(P)var_value2}" = "0" ]]; then
+if [[ "${(P)var_value2:-0}" = "0" ]]; then
     : ${(P)var_value1::=$val}
     : ${(P)var_value2::=1}
     [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
