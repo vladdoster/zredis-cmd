@@ -11,6 +11,8 @@ setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
 typeset -g REPLY=""
+# The variable/data household, an operational-"database" hash
+typeset -gA ZREDIS_CMD
 
 zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
           { print -r -- "Improper options given, see help (-h/--help)"; return 1; }
@@ -20,30 +22,31 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
 (( ${+opthash[-q]} + ${+opthash[--quiet]} ))    && local OPT_QUIET="-q"
 (( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
 
-local name="$1" val="$2" var_value1 var_value2 par1 par2 par3
+local name="$1" val="$2" key1 value1_var_name key2 flag2_var_name
 [[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed as first argument, see -h/--help"; return 1; }
 
 # Clear cache of the value-holder
-par1="zredis_queue_${name}_sink"
-ztclear "${(P)par1}"
-var_value1="${(P)par1}"
+key1="queue_${name}_sink"
+value1_var_name="${ZREDIS_CMD[$key1]}"
+ztclear "$value1_var_name"
 
 # Clear cache of the accompanying flag-holder
-par2="zredis_queue_${name}_flagidx"
-ztclear "${(P)par2}"
-var_value2="${(P)par2}"
+key2="queue_${name}_flag_idx"
+flag2_var_name="${ZREDIS_CMD[$key2]}"
+ztclear "$flag2_var_name"
 
 # Prepare the local copy of the flag-holder
 # Unused, 0 and 1 are being used directly, to
 # allow dynamic change of direction of the
 # 1-element queue.
-# par3="zredis_queue_${name}_val_flagidx"
+# Just read the value, there's no indirection
+# value3="${ZREDIS_CMD[queue_${name}_val_flag_idx]}"
 
-if [[ "${(P)var_value2:-0}" = "0" ]]; then
-    : ${(P)var_value1::=$val}
-    : ${(P)var_value2::=1}
-    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
-    return 0
+# value1 - the value, flag2 - flag
+if [[ "${(P)flag2_var_name:-0}" = "0" ]]; then
+    : ${(P)value1_var_name::=$val}
+    : ${(P)flag2_var_name::=1}
+    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'" return 0
 else
     [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is full, didn't push new data"
     return 1

@@ -5,6 +5,8 @@ setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
 local REPLY
+# The variable/data household, an operational-"database" hash
+typeset -gA ZREDIS_CMD
 
 zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n p: P: s: -sink: i -init || \
           { print -r -- "Improper options given, see help (-h/--help)"; return 1; }
@@ -27,16 +29,17 @@ address="${address:-$DEFAULT_ATSTR_ADDRESS}"
 # Make sure the address points to a database
 [[ "${address#*/}" = "$address" ]] && address="${address}/${DEFAULT_ATSTR_DB:-7}";
 
-typeset -g zredis_queue_${name}_val_type="STRING"
-typeset -g zredis_queue_${name}_val_flagidx="0"
-typeset -g zredis_queue_${name}_sink="${OPT_SINK:-$name}"
-typeset -g zredis_queue_${name}_flagidx="flag_idx_${OPT_SINK:-$name}"
+# Fill "entry-form" for the new atomic-string that's being setup
+ZREDIS_CMD[queue_${name}_val_type]="STRING"                     # type
+ZREDIS_CMD[queue_${name}_val_flag_idx]="0"                       # current on-our-side value of the flag
+ZREDIS_CMD[queue_${name}_sink]="${OPT_SINK:-$name}"             # name of the sink, i.e. of the data-field name in redis db
+ZREDIS_CMD[queue_${name}_flag_idx]="flag_idx_${OPT_SINK:-$name}" # name of the flag, i.e. the flag-field on redis db side
 
 # Prepare password options
 local -a password
 password=( ${${=OPT_PASSWORD:+-p $OPT_PASSWORD}:-${=OPT_PASSWORD_FILE:+-P $OPT_PASSWORD_FILE}} )
 
-@atom-untie-if-tied "$name" "flag_idx_${name}"
+@atom-untie-if-tied "$name" "flag_idx_$name"
 ztie -d db/redis -f "${address}/${OPT_SINK:-$name}" "${password[@]}" -SL string "$name"
 ztie -d db/redis -f "${address}/flag_idx_${OPT_SINK:-$name}" "${password[@]}" -SL string flag_idx_${name}
 
