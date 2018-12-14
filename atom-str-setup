@@ -30,9 +30,9 @@ address="${address:-$DEFAULT_ATSTR_ADDRESS}"
 [[ "${address#*/}" = "$address" ]] && address="${address}/${DEFAULT_ATSTR_DB:-7}";
 
 # Fill "entry-form" for the new atomic-string that's being setup
-ZREDIS_CMD[queue_${name}_val_type]="STRING"                     # type
+ZREDIS_CMD[queue_${name}_val_type]="STRING"                      # type
 ZREDIS_CMD[queue_${name}_val_flag_idx]="0"                       # current on-our-side value of the flag
-ZREDIS_CMD[queue_${name}_sink]="${OPT_SINK:-$name}"             # name of the sink, i.e. of the data-field name in redis db
+ZREDIS_CMD[queue_${name}_sink]="${OPT_SINK:-$name}"              # name of the sink, i.e. of the data-field name in redis db
 ZREDIS_CMD[queue_${name}_flag_idx]="flag_idx_${OPT_SINK:-$name}" # name of the flag, i.e. the flag-field on redis db side
 
 # Prepare password options
