@@ -42,7 +42,9 @@ var_value2="${(P)par2}"
 if [[ "${(P)var_value2}" = "0" ]]; then
     : ${(P)var_value1::=$val}
     : ${(P)var_value2::=1}
+    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
     return 0
 else
+    [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is full, didn't push new data"
     return 1
 fi
