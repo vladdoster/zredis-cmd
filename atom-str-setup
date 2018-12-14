@@ -13,7 +13,6 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n p: P: s: -s
 (( ${+opthash[-v]} + ${+opthash[--verbose]} ))  && local OPT_VERBOSE="-v"
 (( ${+opthash[-q]} + ${+opthash[--quiet]} ))    && local OPT_QUIET="-q"
 (( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
-(( ${+opthash[-n]} + ${+opthash[--only-new]} )) && local OPT_ONLY_NEW="-n"
 (( ${+opthash[-p]} ))                           && local OPT_PASSWORD="${opthash[-p]}"
 (( ${+opthash[-P]} ))                           && local OPT_PASSWORD_FILE="${opthash[-P]}"
 (( ${+opthash[-s]} + ${+opthash[--sink]} ))     && local OPT_SINK="${opthash[-s]}${opthash[--sink]}"
