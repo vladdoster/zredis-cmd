@@ -24,6 +24,9 @@ local name="$1" address="$2"
 address="${address:-$DEFAULT_ATSTR_ADDRESS}"
 [[ -z "$address" ]] && { print -r -- "Error: aborting, no address given (optional second argument, see -h/--help)"; return 1; }
 
+# Make sure the address points to a database
+[[ "${address#*/}" = "$address" ]] && address="${address}/${DEFAULT_ATSTR_DB:-7}";
+
 typeset -g zredis_queue_${name}_val_type="STRING"
 typeset -g zredis_queue_${name}_val_flagidx="0"
 typeset -g zredis_queue_${name}_sink="${OPT_SINK:-$name}"
