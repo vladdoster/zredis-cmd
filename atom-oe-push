@@ -10,8 +10,6 @@
 setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
-typeset -g REPLY=""
-typeset -ga reply
 # The variable/data household, an operational-"database" hash
 typeset -gA ZREDIS_CMD
 
