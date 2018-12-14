@@ -25,17 +25,17 @@ address="${address:-$DEFAULT_ATSTR_ADDRESS}"
 [[ -z "$address" ]] && { print -r -- "Error: aborting, no address given (optional second argument, see -h/--help)"; return 1; }
 
 typeset -g zredis_queue_${name}_val_type="STRING"
-typeset -g zredis_queue_${name}_val_flagidx="1"
-typeset -g zredis_queue_${name}_sink="${OPT_SINK-:$name}"
-typeset -g zredis_queue_${name}_flagidx="flag_idx_${OPT_SINK-:$name}"
+typeset -g zredis_queue_${name}_val_flagidx="0"
+typeset -g zredis_queue_${name}_sink="${OPT_SINK:-$name}"
+typeset -g zredis_queue_${name}_flagidx="flag_idx_${OPT_SINK:-$name}"
 
 # Prepare password options
 local -a password
 password=( ${${=OPT_PASSWORD:+-p $OPT_PASSWORD}:-${=OPT_PASSWORD_FILE:+-P $OPT_PASSWORD_FILE}} )
 
 @atom-untie-if-tied "$name" "flag_idx_${name}"
-ztie -d db/redis -f "${address}/${OPT_SINK-:$name}" "${password[@]}" -SL string "$name"
-ztie -d db/redis -f "${address}/flag_idx_${OPT_SINK-:$name}" "${password[@]}" -SL string flag_idx_${name}
+ztie -d db/redis -f "${address}/${OPT_SINK:-$name}" "${password[@]}" -SL string "$name"
+ztie -d db/redis -f "${address}/flag_idx_${OPT_SINK:-$name}" "${password[@]}" -SL string flag_idx_${name}
 
 local -A var_to_value
 var_to_value=( "$name" "" "flag_idx_$name" 0 )
