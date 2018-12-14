@@ -44,8 +44,9 @@ local -a password
 password=( ${${=OPT_PASSWORD:+-p $OPT_PASSWORD}:-${=OPT_PASSWORD_FILE:+-P $OPT_PASSWORD_FILE}} )
 
 @atom-untie-if-tied "$name" "flag_idx_$name"
-ztie -d db/redis -f "${address}/${OPT_SINK:-$name}" "${password[@]}" -SL "$OPT_TYPE" "$name"
-ztie -d db/redis -f "${address}/flag_idx_${OPT_SINK:-$name}" "${password[@]}" -SL "$OPT_TYPE" flag_idx_${name}
+[[ "$OPT_TYPE" = (#i)(hash|zset) ]] && local zero_cache="-z" || local zero_cache=""
+ztie -d db/redis $zero_cache -f "${address}/${OPT_SINK:-$name}" "${password[@]}" -SL "$OPT_TYPE" "$name"
+ztie -d db/redis $zero_cache -f "${address}/flag_idx_${OPT_SINK:-$name}" "${password[@]}" -SL string flag_idx_${name}
 
 local -A var_to_value
 var_to_value=( "$name" "" "flag_idx_$name" 0 )

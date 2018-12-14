@@ -6,8 +6,12 @@ setopt localoptions extendedglob typesetsilent warncreateglobal
 
 local -A opthash
 typeset -g REPLY=""
-typeset -ga reply
+
+# Set up `reply' type
+local tpe="${ZREDIS_CMD[queue_${1}_val_type]}"  # read to have the value handy
+[[ "$tpe" = (#i)(hash|zset) ]] && typeset -gA reply || typeset -ga reply
 reply=()
+
 # The variable/data household, an operational-"database" hash
 typeset -gA ZREDIS_CMD
 
@@ -25,12 +29,12 @@ local name="$1" key1 value1_var_name key2 flag2_var_name
 # Clear cache of the value-holder
 key1="queue_${name}_sink"
 value1_var_name="${ZREDIS_CMD[$key1]}"
-ztclear "$value1_var_name"
+[[ "$tpe" != (hash|zset) ]] && ztclear "$value1_var_name"
 
 # Clear cache of the accompanying flag-holder
 key2="queue_${name}_flag_idx"
 flag2_var_name="${ZREDIS_CMD[$key2]}"
-ztclear "$flag2_var_name"
+[[ "$tpe" != (hash|zset) ]] && ztclear "$flag2_var_name"
 
 # Prepare the local copy of the flag-holder
 # Unused, 0 and 1 are being used directly, to
@@ -41,10 +45,15 @@ ztclear "$flag2_var_name"
 
 # (1), i.e. value1_var_name - the value, (2), i.e. flag2_var_name - flag
 if [[ "${(P)flag2_var_name:-0}" != "0" ]]; then
-    if [[ "${ZREDIS_CMD[queue_${name}_val_type]}" = (#i)string ]]; then
+    if [[ "$tpe" = (#i)string ]]; then
         REPLY="${(P)value1_var_name}"
-    else
+    elif [[ "$tpe" = (#i)(list|set) ]]; then
         reply=( "${(@P)value1_var_name}" )
+    elif [[ "$tpe" = (#i)(hash|zset) ]]; then
+        reply=( "${(@kv)${(@Pkv)value1_var_name}}" )
+    else
+        print -r -- "Unrecognized type \`$tpe', aborting"
+        return 2
     fi
     : ${(P)flag2_var_name::=0}
     [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully read new data from the 1-element queue \`$name'"

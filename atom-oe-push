@@ -30,11 +30,17 @@ local name="$1" tpe key1 value1_var_name key2 flag2_var_name
 tpe="${ZREDIS_CMD[queue_${name}_val_type]}"
 
 # Decide on $val form (type)
-if [[ $tpe = (#i)(list|set) && "$2" = "[" ]]; then
+if [[ "$tpe" = (#i)(list|set|hash|zset) && "$2" = "[" ]]; then
     local -a val
     val=( "${@[3,-1]}" )
     [[ "${val[-1]}" = "]" ]] && val[-1]=()
-elif [[ $tpe = (#i)(list|set) ]]; then
+    if [[ "$tpe" = (#i)(hash|zset) ]]; then
+        if (( ${#val} % 2 )); then
+            print "Error: uneven number of elements given for hash, aborting.."
+            return 2
+        fi
+    fi
+elif [[ "$tpe" = (#i)(list|set) ]]; then
     local -a val
     val=( "${(@P)2}" )
 elif [[ "$tpe" = (#i)string ]]; then
@@ -42,18 +48,18 @@ elif [[ "$tpe" = (#i)string ]]; then
     val="$2"
 else
     print -rn -- "Unrecognized type of the queue: $tpe"
-    return 2
+    return 3
 fi
 
 # Clear cache of the value-holder
 key1="queue_${name}_sink"
 value1_var_name="${ZREDIS_CMD[$key1]}"
-ztclear "$value1_var_name"
+[[ "$tpe" != (#i)(hash|zset) ]] && ztclear "$value1_var_name"
 
 # Clear cache of the accompanying flag-holder
 key2="queue_${name}_flag_idx"
 flag2_var_name="${ZREDIS_CMD[$key2]}"
-ztclear "$flag2_var_name"
+[[ "$tpe" != (#i)(hash|zset) ]] && ztclear "$flag2_var_name"
 
 # Prepare the local copy of the flag-holder
 # Unused, 0 and 1 are being used directly, to
@@ -70,6 +76,9 @@ if [[ "${(P)flag2_var_name:-0}" = "0" ]]; then
     elif [[ "$tpe" = (#i)(list|set) ]]; then
         print "Storing >${(j:,:)val}<"
         : ${(PA)value1_var_name::=${val[@]}}
+    elif [[ "$tpe" = (#i)(hash|zset) ]]; then
+        print "Storing in hash >${(j:,:)val}<"
+        : ${(PAA)value1_var_name::=${val[@]}}
     fi
     : ${(P)flag2_var_name::=1}
     [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
