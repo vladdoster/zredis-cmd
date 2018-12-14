@@ -1,0 +1,48 @@
+# -*- Mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# vim:ft=zsh:sw=4:sts=4:et
+#
+# Stores the given value into the atomic-string.
+# Basically, if flag == 0, then there's room and a value can be stored.
+# If flag == 1, then a value is ready for retrieval. Whichever party
+# will make use of the flag, either storing or getting the value, its
+# gonna succeed (if the 1-element queue will be full empty, as expected).
+
+setopt localoptions extendedglob typesetsilent warncreateglobal
+
+local -A opthash
+typeset -g REPLY=""
+
+zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
+          { print -r -- "Improper options given, see help (-h/--help)"; return 1; }
+
+(( ${+opthash[-h]} + ${+opthash[--help]} ))     && local OPT_HELP="-h"
+(( ${+opthash[-v]} + ${+opthash[--verbose]} ))  && local OPT_VERBOSE="-v"
+(( ${+opthash[-q]} + ${+opthash[--quiet]} ))    && local OPT_QUIET="-q"
+(( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
+
+local name="$1" val="$2" var_value1 var_value2 par1 par2 par3
+[[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed as first argument, see -h/--help"; return 1; }
+
+# Clear cache of the value-holder
+par1="zredis_queue_${name}_sink"
+ztclear "${(P)par1}"
+var_value1="${(P)par1}"
+
+# Clear cache of the accompanying flag-holder
+par2="zredis_queue_${name}_flagidx"
+ztclear "${(P)par2}"
+var_value2="${(P)par2}"
+
+# Prepare the local copy of the flag-holder
+# Unused, 0 and 1 are being used directly, to
+# allow dynamic change of direction of the
+# 1-element queue.
+# par3="zredis_queue_${name}_val_flagidx"
+
+if [[ "${(P)var_value2}" = "0" ]]; then
+    : ${(P)var_value1::=$val}
+    : ${(P)var_value2::=1}
+    return 0
+else
+    return 1
+fi

@@ -14,4 +14,4 @@ if [[ ( ${+LOADED_PLUGINS} = 0 || ${LOADED_PLUGINS[-1]} != */zredis ) && -z "${f
     fpath+=( "$ZREDIS_CMD_REPO_DIR" )
 fi
 
-autoload @atom-untie-if-tied @atom-read-all atom-str-setup
+autoload @atom-untie-if-tied @atom-read-all atom-str-setup atom-str-get atom-str-push
