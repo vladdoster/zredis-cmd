@@ -70,12 +70,9 @@ flag2_var_name="${ZREDIS_CMD[$key2]}"
 if [[ "${(P)flag2_var_name:-0}" = "0" ]]; then
     if [[ "$tpe" = (#i)string ]]; then
         : ${(P)value1_var_name::=$val}
-        print "Storing <$val>"
     elif [[ "$tpe" = (#i)(list|set) ]]; then
-        print "Storing >${(j:,:)val}<"
         : ${(PA)value1_var_name::=${val[@]}}
     elif [[ "$tpe" = (#i)(hash|zset) ]]; then
-        print "Storing in hash >${(j:,:)val}<"
         : ${(PAA)value1_var_name::=${val[@]}}
     fi
     : ${(P)flag2_var_name::=1}
