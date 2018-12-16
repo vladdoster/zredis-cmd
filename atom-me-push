@@ -44,7 +44,7 @@ else
 fi
 
 local next_write3_var_name="${ZREDIS_CMD[queue_${name}_val_next_write_prefix]}${name}"
-local idx="${(P)next_write3_var_name}"
+local idx="${(P)next_write3_var_name:-1}"
 
 local single_value stored=0 error=0
 
