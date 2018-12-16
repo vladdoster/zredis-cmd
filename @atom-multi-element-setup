@@ -67,7 +67,7 @@ var_to_value=(
     "${ZREDIS_CMD[queue_${name}_val_next_write_prefix]}$name" "1"
 )
 
-local output="" nam filename
+local output="" nam filename val
 for nam in "${ZREDIS_CMD[queue_${name}_val_prefix]}$name" \
         "${ZREDIS_CMD[queue_${name}_val_flag_prefix]}$name" \
         "${ZREDIS_CMD[queue_${name}_val_next_read_prefix]}$name" \
