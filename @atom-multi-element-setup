@@ -23,9 +23,9 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n p: P: \
 
 local name="$1" address="$2"
 
-[[ -z "$name" ]] && { print -r -- "zr-cmd ME backend: Argument required, see atstr_setup -h/--help"; return 2; }
+[[ -z "$name" ]] && { print -r -- "zr-cmd ME backend: Argument required, see -h/--help"; return 2; }
 address="${address:-$DEFAULT_ATSTR_ADDRESS}"
-[[ -z "$address" ]] && { print -r -- "zr-cmd ME backend: Error: aborting, no address given (optional second argument, see -h/--help)"; return 3; }
+[[ -z "$address" ]] && { print -r -- "zr-cmd ME backend: Error: aborting, no address given (the optional second argument, see -h/--help)"; return 3; }
 # Currently supporting `hash' (i.e. HSET) redis-db key-type
 [[ -z "$OPT_TYPE" ]] && local OPT_TYPE="hash"
 [[ "$OPT_TYPE" != "hash" ]] && { print -r -- "zr-cmd ME backend: Error: improper type given, allowed are: hash"; return 5; }
@@ -93,7 +93,7 @@ done
 [[ -n "$OPT_INIT" ]] && ZREDIS_CMD[queue_${name}_val_next_idx]=1
 
 [[ "$output" = (#i)*error* ]] && {
-    print -r -- "Warning: error occured (1): ${(M)output%error*}"
+    print -r -- "Warning: error occured (aborting, 1): ${(M)output%error*}"
     @atom-untie-if-tied "${ZREDIS_CMD[queue_${name}_val_prefix]}$name" \
                     "${ZREDIS_CMD[queue_${name}_val_flag_prefix]}$name" \
                     "${ZREDIS_CMD[queue_${name}_val_next_read_prefix]}$name" \

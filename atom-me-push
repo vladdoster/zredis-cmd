@@ -22,10 +22,11 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
 (( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
 
 local name="$1" tpe value1_var_name flag2_var_name next_write3_var_name
-[[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed as first argument, see -h/--help"; return 1; }
+[[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed, see -h/--help"; return 1; }
 
 # Read to have the value handy
 tpe="${ZREDIS_CMD[queue_${name}_val_type]}"
+[[ -z "$tpe" ]] && { print -r -- "The ME queue \`$1' isn't setup, see atom-me-setup -h, aborting..."; return 1; }
 
 # Decide on $val form (type)
 if [[ "$tpe" = (#i)(hash|zset) && "$2" = "[" ]]; then
@@ -34,15 +35,14 @@ if [[ "$tpe" = (#i)(hash|zset) && "$2" = "[" ]]; then
     [[ "${val[-1]}" = "]" ]] && val[-1]=()
 elif [[ "$tpe" = (#i)(hash|zset) ]]; then
     local -a val
-    [[ -z "$2" ]] && { print "No value to send (\"push\") given, aborting..."; return 3; }
+    [[ -z "$2" ]] && { print "No value to send given, aborting..."; return 3; }
     [[ 1 -ne "${(P)+2}" ]] && { print "The data-to-send variable \`$2' doesn't exist, aborting..."; return 4; }
     val=( "${(kv@)${(Pkv@)2}}" )
 else
-    print -r -- "Unrecognized or forbidden type of the multi-element queue: $tpe"
-    print -r -- "Allowed are only \`hash' and \`zset'"
+    print -r -- "Unrecognized or forbidden type of ME queue: $tpe"
+    print -r -- "Allowed are: \`hash' and \`zset'"
     return 5
 fi
-
 local next_write3_var_name="${ZREDIS_CMD[queue_${name}_val_next_write_prefix]}${name}"
 local idx="${(P)next_write3_var_name:-1}"
 
@@ -63,12 +63,12 @@ for single_value in "${val[@]}"; do
         (( ++ idx ))
         : ${(P)next_write3_var_name::=$idx}
     else
-        (( error )) || print "Error: redis-db fields appear to be unexpected full"
+        (( error )) || print "atom-me-push: queue is full, skipping data"
         error=1
         continue
     fi
 done
 
-[[ -z "$OPT_QUIET" && "$stored" -eq 1 ]] && print -r -- "Successfully stored new data into the multi-element queue \`$name'"
+[[ -z "$OPT_QUIET" && "$stored" -eq 1 ]] && print -r -- "atom-me-push: OK, data sent"
 
 return $error
