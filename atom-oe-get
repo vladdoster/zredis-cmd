@@ -56,9 +56,9 @@ if [[ "${(P)flag2_var_name:-0}" != "0" ]]; then
         return 2
     fi
     : ${(P)flag2_var_name::=0}
-    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully read new data from the 1-element queue \`$name'"
+    [[ -z "$OPT_QUIET" ]] && print -r -- "atom-oe-get: OK, read new elements"
     return 0
 else
-    [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is empty"
+    [[ -z "$OPT_QUIET" ]] && print -r -- "atom-oe-get: the queue is empty"
     return 1
 fi

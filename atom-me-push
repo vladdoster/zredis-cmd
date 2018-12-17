@@ -69,6 +69,6 @@ for single_value in "${val[@]}"; do
     fi
 done
 
-[[ -z "$OPT_QUIET" && "$stored" -eq 1 ]] && print -r -- "atom-me-push: OK, data sent"
+[[ -z "$OPT_QUIET" && "$stored" -eq 1 ]] && print -r -- "atom-me-push: OK data sent"
 
 return $error

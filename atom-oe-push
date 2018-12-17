@@ -22,7 +22,7 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
 (( ${+opthash[-a]} + ${+opthash[--no-ansi]} ))  && local OPT_NO_ANSI="-a"
 
 local name="$1" tpe key1 value1_var_name key2 flag2_var_name
-[[ -z "$name" ]] && { print -r -- "Name of the atom-string parameter needed as first argument, see -h/--help"; return 1; }
+[[ -z "$name" ]] && { print -r -- "Name of the atom parameter needed, see -h/--help"; return 1; }
 
 # Read to have the value handy
 tpe="${ZREDIS_CMD[queue_${name}_val_type]}"
@@ -78,9 +78,9 @@ if [[ "${(P)flag2_var_name:-0}" = "0" ]]; then
         : ${(PAA)value1_var_name::=${val[@]}}
     fi
     : ${(P)flag2_var_name::=1}
-    [[ -z "$OPT_QUIET" ]] && print -r -- "Successfully stored new data into the 1-element queue \`$name'"
+    [[ -z "$OPT_QUIET" ]] && print -r -- "atom-me-push: OK data sent"
     return 0
 else
-    [[ -z "$OPT_QUIET" ]] && print -r -- "The 1-element queue \`$name' is full, didn't push new data"
+    [[ -z "$OPT_QUIET" ]] && print -r -- "atom-me-push: queue is full, skipping sending data"
     return 1
 fi
