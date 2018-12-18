@@ -83,7 +83,12 @@ do
             { : ${(P)nam::=${var_to_value[$nam]}}; } >"$filename" 2>&1
         fi
     else
-        { val="${(P)nam}"; } >"$filename" 2>&1
+        if [[ "${(Pt)nam}" = *association* ]]; then
+            nam="${nam}[empty]"
+            { val="${(P)nam}"; } >"$filename" 2>&1
+        else
+            { val="${(P)nam}"; } >"$filename" 2>&1
+        fi
     fi
     IFS=$'\n' read nam < "$filename"; output+="$nam"
     command rm -f "$filename"
