@@ -27,7 +27,7 @@ zparseopts -E -D -A opthash h -help v -verbose q -quiet a -no-ansi n || \
 local name="$1" value1_var_name flag2_var_name read=0 error=0
 [[ -z "$name" ]] && { print -r -- "Name of the atom-parameter to create is needed, see -h/--help"; return 3; }
 
-local next_read3_var_name="${ZREDIS_CMD[queue_${name}_val_next_read_prefix]}${name}"
+local next_read3_var_name="${ZREDIS_CMD[queue_${name}_val_next_read_prefix]}${name}" idx
 
 while (( 1 )); do
     # value1 - the value, flag2 - flag
