@@ -19,5 +19,5 @@ fi
 autoload @atom-untie-if-tied @atom-read-all @atom-one-element-setup @atom-setup-facade \
             atom-oe-setup atom-oe-get atom-oe-push \
             @atom-multi-element-setup \
-            atom-me-get atom-me-push
+            atom-me-setup atom-me-get atom-me-push
 
