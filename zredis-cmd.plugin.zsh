@@ -7,12 +7,14 @@
 # to ~/.zshrc.
 
 0="${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
+
 typeset -g ZREDIS_CMD_REPO_DIR="${0:h}"
 typeset -g ZREDIS_CMD_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zredis-cmd"
 # The variable/data household, an operational-"database" hash
 typeset -gA ZREDIS_CMD
 
-if [[ ( ${+LOADED_PLUGINS} = 0 || ${LOADED_PLUGINS[-1]} != */zredis ) && -z "${fpath[(r)${0:h}]}" ]]; then
+if [[ ( ${+zsh_loaded_plugins} = 0 || ${zsh_loaded_plugins[-1]} != */zredis-cmd ) && -z "${fpath[(r)${0:h}]}" ]]; then
     fpath+=( "$ZREDIS_CMD_REPO_DIR" )
 fi
 
